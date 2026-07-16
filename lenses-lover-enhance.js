@@ -122,7 +122,38 @@
   .ll-sempty{ padding:28px; text-align:center; color:var(--ivory-dim); font-size:14px; }
   .ll-shint{ margin-top:12px; text-align:center; font-size:12px; color:var(--ivory-dim); }
   `;
-  var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+  var st=document.createElement('style'); st.textContent=css + `
+  /* footer social icons — squircle dark (global, matches reference) */
+  .social-row{ display:flex; gap:12px; }
+  .social-row .icon-btn{
+    width:46px; height:46px; border-radius:14px;
+    background:var(--ink-3); border:1px solid var(--line);
+    color:var(--ivory-dim);
+    display:flex; align-items:center; justify-content:center;
+    transition:background .25s ease, color .25s ease, border-color .25s ease, transform .25s ease;
+  }
+  .social-row .icon-btn svg{ width:22px; height:22px; }
+  .social-row .icon-btn:hover{
+    background:var(--amber); border-color:var(--amber);
+    color:var(--ink); transform:translateY(-3px);
+  }`; document.head.appendChild(st);
+
+  /* ---------- canonical social links (rewrites every footer .social-row) ---------- */
+  var SOCIALS=[
+    {label:'facebook', href:'https://www.facebook.com/share/195DYoJEA3/?mibextid=wwXIfr',
+     svg:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0022 12z"/></svg>'},
+    {label:'instagram', href:'https://www.instagram.com/lenses_lover1?igsh=Z3Y0cmoyZG1vejF0&utm_source=qr',
+     svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>'},
+    {label:'tiktok', href:'https://www.tiktok.com/@lenses_lover111?_r=1&_t=ZS-983grLT1W8z',
+     svg:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 3c.4 2 2 3.6 4 3.9V10c-1.5 0-2.9-.5-4-1.3V15a6 6 0 1 1-6-6c.3 0 .7 0 1 .1v3.2a2.8 2.8 0 1 0 2 2.7V3h3z"/></svg>'},
+    {label:'whatsapp', href:'https://wa.me/'+WA,
+     svg:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.7 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5.1-4.5-.1-.2-1.2-1.6-1.2-3 0-1.4.7-2.1 1-2.4.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5.2.5.8 1.9.8 2 .1.2.1.3 0 .5-.1.2-.2.3-.3.5-.2.2-.3.3-.1.6.7 1.2 1.5 2 2.8 2.7.2.1.4.1.5-.1.2-.2.6-.7.8-.9.2-.2.4-.2.6-.1.2.1 1.5.7 1.8.8.3.1.4.2.5.3.1.2.1.9-.1 1.6z"/></svg>'}
+  ];
+  document.querySelectorAll('.social-row').forEach(function(row){
+    row.innerHTML=SOCIALS.map(function(s){
+      return '<a href="'+s.href+'" target="_blank" rel="noopener" class="icon-btn" aria-label="'+s.label+'">'+s.svg+'</a>';
+    }).join('');
+  });
 
   /* ---------- product catalog (shared, mirrors shop) ---------- */
   var CATALOG=[
@@ -137,8 +168,17 @@
   ];
 
   /* ---------- cart state (sessionStorage) ---------- */
-  function loadCart(){ try{ return JSON.parse(sessionStorage.getItem('ll_cart')||'[]'); }catch(e){ return []; } }
-  function saveCart(c){ try{ sessionStorage.setItem('ll_cart', JSON.stringify(c)); }catch(e){} }
+  function loadCart(){
+    try{
+      var v=localStorage.getItem('ll_cart');
+      if(v===null){ // migrate from old sessionStorage cart (one-time)
+        v=sessionStorage.getItem('ll_cart');
+        if(v!==null){ localStorage.setItem('ll_cart', v); sessionStorage.removeItem('ll_cart'); }
+      }
+      return JSON.parse(v||'[]');
+    }catch(e){ return []; }
+  }
+  function saveCart(c){ try{ localStorage.setItem('ll_cart', JSON.stringify(c)); }catch(e){} }
   var cart=loadCart();
 
   function cur(){ return isAr()?'ج.م':'EGP'; }
