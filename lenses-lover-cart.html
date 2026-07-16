@@ -356,9 +356,9 @@
 
 <header>
   <div class="wrap nav-row">
-    <a href="lenses-lover-homepage.html" class="logo">LENSES<span> LOVER</span></a>
+    <a href="index.html" class="logo">LENSES<span> LOVER</span></a>
     <nav class="links">
-      <a href="lenses-lover-homepage.html">
+      <a href="index.html">
         <span class="ar">الرئيسية</span><span class="en">Home</span>
       </a>
       <a href="lenses-lover-shop.html">
@@ -393,7 +393,7 @@
 
 <section class="page-hero">
   <div class="wrap">
-    <div class="crumbs"><a href="lenses-lover-homepage.html"><span class="ar">الرئيسية</span><span class="en">Home</span></a><span class="sep">/</span><span><span class="ar">سلة التسوق</span><span class="en">Cart</span></span></div>
+    <div class="crumbs"><a href="index.html"><span class="ar">الرئيسية</span><span class="en">Home</span></a><span class="sep">/</span><span><span class="ar">سلة التسوق</span><span class="en">Cart</span></span></div>
     <h1><span class="ar">سلة التسوق</span><span class="en">Shopping Cart</span></h1>
   </div>
 </section>
@@ -439,7 +439,7 @@
       </div>
       <div class="foot-col">
         <h4><span class="ar">روابط سريعة</span><span class="en">Quick Links</span></h4>
-        <a href="lenses-lover-homepage.html"><span class="ar">الرئيسية</span><span class="en">Home</span></a>
+        <a href="index.html"><span class="ar">الرئيسية</span><span class="en">Home</span></a>
         <a href="lenses-lover-shop.html"><span class="ar">تسوقي</span><span class="en">Shop</span></a>
         <a href="lenses-lover-about.html"><span class="ar">من نحن</span><span class="en">About</span></a>
         <a href="lenses-lover-blog.html"><span class="ar">المدونة</span><span class="en">Blog</span></a>
@@ -453,7 +453,7 @@
       </div>
       <div class="foot-col">
         <h4><span class="ar">تواصل معنا</span><span class="en">Contact</span></h4>
-        <a href="https://wa.me/201112780703"><span class="ar">واتساب: 01112780703</span><span class="en">WhatsApp: 01112780703</span></a>
+        <a href="https://wa.me/201011423093"><span class="ar">واتساب: 01112780703</span><span class="en">WhatsApp: 01112780703</span></a>
         <a href="mailto:hello@lenseslover.com">hello@lenseslover.com</a>
         <a href="lenses-lover-account.html"><span class="ar">حسابي</span><span class="en">My Account</span></a>
       </div>
@@ -483,11 +483,16 @@
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
   const FREE_SHIP=800, SHIP_COST=60;
-  let cart=[
-    { ar:'وميض العسل', en:'Honey Glow',  c1:'#e8b36b', c2:'#8c5a24', ring:'#5c3a18', ar_meta:'عسلي · يومي', en_meta:'Honey · Daily', price:399, qty:1 },
-    { ar:'ستار الزمرد', en:'Emerald Veil',c1:'#7fbf9e', c2:'#1f5c42', ring:'#123626', ar_meta:'زمردي · شهري', en_meta:'Emerald · Monthly', price:450, qty:2 },
-    { ar:'ضباب المحيط', en:'Ocean Mist',  c1:'#7fa8c9', c2:'#28516e', ring:'#1a3244', ar_meta:'أزرق · يومي', en_meta:'Ocean · Daily', price:350, qty:1 },
-  ];
+  // real cart — shared with enhance.js drawer (localStorage 'll_cart')
+  function llLoadCart(){
+    try{
+      var v=localStorage.getItem('ll_cart');
+      if(v===null){ v=sessionStorage.getItem('ll_cart'); if(v!==null){ localStorage.setItem('ll_cart', v); sessionStorage.removeItem('ll_cart'); } }
+      return JSON.parse(v||'[]');
+    }catch(e){ return []; }
+  }
+  function llSaveCart(){ try{ localStorage.setItem('ll_cart', JSON.stringify(cart)); }catch(e){} }
+  let cart=llLoadCart();
   let coupon=0; // fraction
 
   const itemsEl=document.getElementById('cart-items');
@@ -512,7 +517,7 @@
         <div class="ci-info">
           <h3>${it.ar}<span class="en" style="display:none"></span></h3>
           <div class="en-name">${it.en}</div>
-          <div class="meta"><span class="ar">${it.ar_meta}</span><span class="en">${it.en_meta}</span></div>
+          <div class="meta"><span class="ar">${it.ar_m||it.ar_meta||''}</span><span class="en">${it.en_m||it.en_meta||''}</span></div>
         </div>
         <div class="ci-right">
           <div class="ci-price">${money(it.price*it.qty)} <span class="ar">ج.م</span><span class="en">EGP</span></div>
@@ -534,6 +539,7 @@
         if(a==='inc') cart[i].qty++;
         else if(a==='dec') cart[i].qty=Math.max(1,cart[i].qty-1);
         else if(a==='rm') cart.splice(i,1);
+        llSaveCart();
         draw(); totals();
       };
     });
@@ -575,5 +581,6 @@
 
 </script>
 
+<script src="lenses-lover-enhance.js" defer></script>
 </body>
 </html>
